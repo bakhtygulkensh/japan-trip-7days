@@ -1,0 +1,662 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>7 дней в Японии — маршрут</title>
+<style>
+  :root{
+    --bg: #141a2e;
+    --paper: #f4ead6;
+    --paper-shadow: #d9cca8;
+    --ink: #24201a;
+    --ink-soft: #5a5548;
+    --shu: #c1402c;
+    --shu-dark: #942f20;
+    --gold: #c79a45;
+    --mist: #8fa0bd;
+    --line: rgba(244,234,214,0.16);
+    --serif: Georgia, 'Iowan Old Style', 'Times New Roman', serif;
+    --sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    --mono: 'SF Mono', SFMono-Regular, Menlo, Consolas, monospace;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background:
+      radial-gradient(ellipse 900px 500px at 15% -5%, #1e2747 0%, transparent 60%),
+      radial-gradient(ellipse 700px 500px at 100% 10%, #1a2138 0%, transparent 55%),
+      var(--bg);
+    color:var(--paper);
+    font-family:var(--sans);
+    line-height:1.5;
+    -webkit-font-smoothing:antialiased;
+  }
+
+  /* ---------- Hero ---------- */
+  .hero{
+    position:relative;
+    padding:5rem 1.5rem 3.5rem;
+    text-align:center;
+    overflow:hidden;
+    border-bottom:1px solid var(--line);
+  }
+  .hero .eyebrow{
+    font-family:var(--mono);
+    letter-spacing:.18em;
+    text-transform:uppercase;
+    font-size:.72rem;
+    color:var(--mist);
+  }
+  .hero h1{
+    font-family:var(--serif);
+    font-weight:400;
+    font-size:clamp(2.2rem, 5.5vw, 3.8rem);
+    margin:.6rem 0 .3rem;
+  }
+  .hero h1 em{ font-style:normal; color:var(--shu); }
+  .hero p.sub{
+    color:var(--mist);
+    font-size:1rem;
+    max-width:34rem;
+    margin:0 auto;
+  }
+
+  /* ---------- Interactive itinerary ---------- */
+  .itin-wrap{
+    max-width:1080px;
+    margin:3.5rem auto 5rem;
+    padding:0 1.5rem;
+  }
+  .itin-tabs{
+    display:flex;
+    gap:.5rem;
+    flex-wrap:wrap;
+    margin-bottom:1.1rem;
+  }
+  .itin-tab{
+    font-family:var(--sans);
+    font-size:.86rem;
+    font-weight:600;
+    padding:.55rem 1.1rem;
+    border-radius:999px;
+    border:1px solid var(--line);
+    background:transparent;
+    color:var(--paper);
+    cursor:pointer;
+    transition:background .15s, color .15s, border-color .15s;
+  }
+  .itin-tab:hover{ border-color:rgba(244,234,214,.4); }
+  .itin-tab.active{
+    background:var(--paper);
+    color:var(--ink);
+    border-color:var(--paper);
+  }
+
+  .itin-card{
+    background:var(--paper);
+    color:var(--ink);
+    border-radius:14px;
+    overflow:hidden;
+    box-shadow:0 18px 40px rgba(0,0,0,.35);
+    display:grid;
+    grid-template-columns:1.2fr 1fr;
+    min-height:460px;
+  }
+  .itin-map{
+    position:relative;
+    background:#efe7d5;
+    overflow:visible;
+    border-radius:14px 0 0 14px;
+  }
+  @media (max-width:760px){ .itin-map{ border-radius:14px 14px 0 0; } }
+  .itin-map svg{ width:100%; height:100%; display:block; }
+  .itin-map .zoom{
+    position:absolute; left:14px; bottom:14px;
+    display:flex; flex-direction:column;
+    background:#fff; border-radius:6px;
+    box-shadow:0 2px 8px rgba(0,0,0,.2);
+    overflow:hidden;
+  }
+  .itin-map .zoom button{
+    width:32px; height:32px;
+    border:none; background:#fff;
+    border-bottom:1px solid #e5e0d3;
+    font-size:1rem; color:#555;
+    cursor:default;
+  }
+  .itin-map .zoom button:last-child{ border-bottom:none; }
+  .itin-map .caption{
+    position:absolute; right:14px; bottom:10px;
+    font-size:.66rem; color:#8a8370;
+    font-family:var(--sans);
+  }
+
+  .pin-overlay{
+    position:absolute; inset:0;
+    pointer-events:none;
+  }
+  .map-pin{
+    position:absolute;
+    width:26px; height:26px;
+    transform:translate(-50%,-50%);
+    pointer-events:auto;
+    background:transparent;
+    border:none;
+    padding:0;
+    cursor:pointer;
+  }
+  .map-pin:focus{ outline:2px solid var(--shu); outline-offset:2px; border-radius:50%; }
+
+  .map-popup{
+    position:absolute;
+    transform:translate(-50%, calc(-100% - 16px));
+    background:#fff;
+    color:var(--ink);
+    border-radius:10px;
+    box-shadow:0 10px 26px rgba(0,0,0,.28);
+    padding:.75rem .85rem .8rem;
+    width:200px;
+    pointer-events:auto;
+    z-index:5;
+    animation:popIn .14s ease-out;
+  }
+  .map-popup::after{
+    content:'';
+    position:absolute;
+    left:50%; top:100%;
+    transform:translateX(-50%);
+    border:7px solid transparent;
+    border-top-color:#fff;
+  }
+  .map-popup .p-name{ font-weight:700; font-size:.86rem; margin-bottom:.15rem; }
+  .map-popup .p-type{
+    font-family:var(--mono); font-size:.6rem; letter-spacing:.06em;
+    text-transform:uppercase; color:var(--ink-soft); margin-bottom:.35rem;
+  }
+  .map-popup .p-blurb{ font-size:.78rem; color:var(--ink-soft); line-height:1.4; }
+  .map-popup .p-close{
+    position:absolute; top:6px; right:8px;
+    background:none; border:none; cursor:pointer;
+    font-size:.85rem; color:#9a9484; line-height:1;
+    padding:2px;
+  }
+  @keyframes popIn{
+    from{ opacity:0; transform:translate(-50%, calc(-100% - 8px)); }
+    to{ opacity:1; transform:translate(-50%, calc(-100% - 16px)); }
+  }
+
+  .itin-panel{
+    padding:1.8rem 1.9rem 1.6rem;
+    display:flex;
+    flex-direction:column;
+    overflow-y:auto;
+  }
+  .itin-panel .day-label{
+    font-family:var(--mono);
+    font-size:.7rem;
+    letter-spacing:.12em;
+    color:var(--ink-soft);
+    margin-bottom:.4rem;
+  }
+  .itin-panel h3{
+    font-family:var(--serif);
+    font-weight:400;
+    font-size:1.55rem;
+    margin:0 0 .6rem;
+    color:var(--shu-dark);
+  }
+  .itin-panel .desc{
+    font-size:.88rem;
+    color:var(--ink-soft);
+    margin:0 0 1.1rem;
+  }
+  .route-btn{
+    display:inline-flex;
+    align-items:center;
+    gap:.5rem;
+    align-self:flex-start;
+    background:var(--ink);
+    color:var(--paper);
+    text-decoration:none;
+    font-size:.82rem;
+    font-weight:600;
+    padding:.55rem 1rem;
+    border-radius:999px;
+    margin-bottom:1.3rem;
+  }
+  .route-btn:hover{ background:#000; }
+
+  .stop-card{
+    display:flex;
+    gap:.85rem;
+    padding:.85rem 0;
+    border-top:1px solid var(--paper-shadow);
+    cursor:pointer;
+    border-radius:6px;
+    transition:background .12s;
+  }
+  .stop-card:hover{ background:rgba(193,64,44,.06); }
+  .stop-card.is-open{ background:rgba(193,64,44,.1); }
+  .stop-card:first-of-type{ border-top:none; }
+  .stop-icon{
+    position:relative;
+    flex:none;
+    width:52px; height:52px;
+    border-radius:10px;
+    background:linear-gradient(150deg, var(--shu), var(--shu-dark));
+    display:flex; align-items:center; justify-content:center;
+  }
+  .stop-icon svg{ width:26px; height:26px; stroke:var(--paper); fill:none; stroke-width:1.6; }
+  .stop-icon .badge{
+    position:absolute; top:-6px; right:-6px;
+    width:19px; height:19px; border-radius:50%;
+    background:var(--ink); color:var(--paper);
+    font-family:var(--mono); font-size:.62rem;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .stop-text .name{ font-weight:700; font-size:.95rem; }
+  .stop-text .type{
+    font-family:var(--mono); font-size:.66rem;
+    letter-spacing:.06em; text-transform:uppercase;
+    color:var(--ink-soft); margin:.15rem 0 .25rem;
+  }
+  .stop-text .blurb{ font-size:.84rem; color:var(--ink-soft); }
+
+  @media (max-width:760px){
+    .itin-card{ grid-template-columns:1fr; }
+    .itin-map{ height:280px; }
+  }
+
+  /* ---------- Overview schematic map ---------- */
+  .map-wrap{ max-width:900px; margin:0 auto 5rem; padding:0 1.5rem; }
+  .section-title{ font-family:var(--serif); font-weight:400; font-size:1.9rem; text-align:center; margin:0 0 .5rem; }
+  .section-note{ text-align:center; color:var(--mist); max-width:32rem; margin:0 auto 2rem; font-size:.9rem; }
+  .map-card{ background:rgba(244,234,214,.04); border:1px solid var(--line); border-radius:10px; padding:1.6rem 1.6rem 1.2rem; }
+  .map-svg{ width:100%; height:auto; display:block; }
+  .map-land{ fill:#1c2340; stroke:rgba(244,234,214,.18); stroke-width:1.5; }
+  .map-route2{ fill:none; stroke:var(--shu); stroke-width:2.5; stroke-dasharray:1 9; stroke-linecap:round; }
+  @media (prefers-reduced-motion:no-preference){ .map-route2{ animation:dash 26s linear infinite; } }
+  @keyframes dash{ to{ stroke-dashoffset:-400; } }
+  .map-node circle.ring{ fill:none; stroke:var(--gold); stroke-width:1; opacity:.5; }
+  .map-node circle.dot{ fill:var(--shu); }
+  .map-node text.city{ font-family:var(--serif); fill:var(--paper); font-size:15px; }
+  .map-node text.days{ font-family:var(--mono); fill:var(--mist); font-size:9px; letter-spacing:.06em; }
+  .map-legend{ display:flex; flex-wrap:wrap; gap:1.6rem; justify-content:center; margin-top:1.4rem; padding-top:1.2rem; border-top:1px solid var(--line); }
+  .map-legend .item{ display:flex; align-items:baseline; gap:.5rem; font-size:.84rem; color:var(--mist); }
+  .map-legend .item b{ font-family:var(--serif); color:var(--paper); font-size:.95rem; }
+  .map-legend .swatch{ display:inline-block; width:10px; height:10px; border-radius:50%; background:var(--shu); }
+  .map-note{ text-align:center; color:var(--ink-soft); font-size:.76rem; margin-top:.6rem; }
+
+  /* ---------- Budget ---------- */
+  .budget-wrap{ max-width:840px; margin:0 auto 5rem; padding:0 1.5rem; }
+  .ledger{ background:var(--paper); color:var(--ink); border-radius:8px; padding:1.8rem 1.8rem 1.4rem; box-shadow:0 8px 22px rgba(0,0,0,.28); }
+  table{ width:100%; border-collapse:collapse; font-size:.94rem; }
+  thead th{ text-align:left; font-family:var(--mono); font-size:.66rem; letter-spacing:.1em; text-transform:uppercase; color:var(--ink-soft); padding-bottom:.6rem; border-bottom:1px solid var(--paper-shadow); }
+  tbody td{ padding:.65rem 0; border-bottom:1px dashed var(--paper-shadow); }
+  tbody tr:last-child td{ border-bottom:none; }
+  tfoot td{ padding-top:.9rem; font-weight:700; font-family:var(--serif); font-size:1.05rem; border-top:2px solid var(--ink); }
+  td.num{ text-align:right; font-family:var(--mono); }
+  .ledger .fine{ margin-top:1rem; font-size:.78rem; color:var(--ink-soft); }
+
+  /* ---------- Stays ---------- */
+  .stays{ max-width:840px; margin:0 auto 5rem; padding:0 1.5rem; display:grid; gap:1.1rem; grid-template-columns:repeat(3,1fr); }
+  .stay-card{ background:rgba(244,234,214,.05); border:1px solid var(--line); border-radius:8px; padding:1.3rem 1.2rem; }
+  .stay-card .place{ font-family:var(--mono); font-size:.66rem; letter-spacing:.1em; text-transform:uppercase; color:var(--gold); margin-bottom:.5rem; }
+  .stay-card h4{ font-family:var(--serif); font-weight:400; font-size:1.15rem; margin:0 0 .8rem; }
+  .stay-tier{ display:flex; justify-content:space-between; font-size:.86rem; padding:.4rem 0; border-top:1px solid var(--line); color:var(--mist); }
+  .stay-tier:first-of-type{ border-top:none; }
+  .stay-tier b{ color:var(--paper); font-weight:600; }
+  @media (max-width:720px){ .stays{ grid-template-columns:1fr; } }
+
+  footer{ text-align:center; padding:3rem 1.5rem 4rem; color:var(--mist); font-size:.82rem; }
+  footer .stamp{ font-family:var(--mono); letter-spacing:.1em; text-transform:uppercase; font-size:.68rem; color:var(--ink-soft); }
+</style>
+</head>
+<body>
+
+<section class="hero">
+  <div class="eyebrow">日本 · маршрут путешествия</div>
+  <h1>7 дней <em>в Японии</em></h1>
+  <p class="sub">Город, гора и храм — Токио, онсэн Хаконэ и старый Киото. Выберите день, чтобы увидеть план.</p>
+</section>
+
+<div class="itin-wrap">
+  <div class="itin-tabs" id="tabs"></div>
+  <div class="itin-card">
+    <div class="itin-map">
+      <svg viewBox="0 0 460 460" id="mapSvg" preserveAspectRatio="none">
+        <rect width="460" height="460" fill="#efe7d5"/>
+        <rect x="0" y="90" width="460" height="10" fill="#fff"/>
+        <rect x="0" y="230" width="460" height="9" fill="#fff"/>
+        <rect x="0" y="340" width="460" height="8" fill="#fff"/>
+        <rect x="120" y="0" width="9" height="460" fill="#fff"/>
+        <rect x="260" y="0" width="8" height="460" fill="#fff"/>
+        <rect x="360" y="0" width="7" height="460" fill="#fff"/>
+        <path d="M -20,460 C 100,340 140,260 90,140 C 60,60 120,-10 180,-30" stroke="#4a4a4a" stroke-width="2" stroke-dasharray="1 7" fill="none" opacity=".5"/>
+        <rect x="10" y="360" width="46" height="90" fill="#e7cfc9" opacity=".7"/>
+        <g id="pinLayer"></g>
+      </svg>
+      <div class="pin-overlay" id="pinOverlay"></div>
+      <div class="zoom"><button>+</button><button>&minus;</button></div>
+      <div class="caption">схема условна</div>
+    </div>
+    <div class="itin-panel">
+      <div class="day-label" id="dayLabel">DAY 1</div>
+      <h3 id="dayTitle">Токио: первый вечер</h3>
+      <p class="desc" id="dayDesc"></p>
+      <a class="route-btn" id="routeBtn" href="#" target="_blank" rel="noopener">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+        Открыть маршрут
+      </a>
+      <div id="stopsList"></div>
+    </div>
+  </div>
+</div>
+
+<div class="map-wrap">
+  <h2 class="section-title">Карта путешествия</h2>
+  <p class="section-note">Схематичный путь через три главы поездки — с востока на запад острова Хонсю.</p>
+  <div class="map-card">
+    <svg class="map-svg" viewBox="0 0 800 420" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Схема маршрута: Токио, Хаконэ, Киото">
+      <path class="map-land" d="M 120,300 C 100,270 130,230 110,200 C 90,175 130,150 170,155 C 210,145 240,120 290,115 C 340,110 360,90 410,95 C 460,100 470,130 520,140 C 570,150 610,140 650,165 C 690,190 685,225 660,240 C 690,255 700,290 670,305 C 640,320 600,300 560,310 C 520,320 500,345 460,340 C 420,335 410,360 370,355 C 330,350 320,325 280,320 C 240,315 230,335 190,325 C 150,315 140,325 120,300 Z"/>
+      <path class="map-route2" d="M 610,175 C 570,195 545,205 535,215 C 480,235 400,255 300,265"/>
+      <g class="map-node">
+        <circle class="ring" cx="610" cy="175" r="16"/>
+        <circle class="dot" cx="610" cy="175" r="5"/>
+        <text class="city" x="628" y="171">Токио</text>
+        <text class="days" x="628" y="186">ДНИ 1–3</text>
+      </g>
+      <g class="map-node">
+        <circle class="ring" cx="535" cy="215" r="13"/>
+        <circle class="dot" cx="535" cy="215" r="4.5"/>
+        <text class="city" x="549" y="211" font-size="13">Хаконэ</text>
+        <text class="days" x="549" y="225">ДНИ 4–5</text>
+      </g>
+      <g class="map-node">
+        <circle class="ring" cx="300" cy="265" r="16"/>
+        <circle class="dot" cx="300" cy="265" r="5"/>
+        <text class="city" x="240" y="261" text-anchor="end">Киото</text>
+        <text class="days" x="240" y="276" text-anchor="end">ДНИ 6–7</text>
+      </g>
+    </svg>
+    <div class="map-legend">
+      <div class="item"><span class="swatch"></span><b>Токио</b>&nbsp;— город и неон</div>
+      <div class="item"><span class="swatch" style="background:var(--gold)"></span><b>Хаконэ</b>&nbsp;— гора и онсэн</div>
+      <div class="item"><span class="swatch" style="background:#e2836f"></span><b>Киото</b>&nbsp;— храмы и тории</div>
+    </div>
+    <p class="map-note">Схема условна и не является точной географической проекцией.</p>
+  </div>
+</div>
+
+<div class="budget-wrap">
+  <h2 class="section-title">Бюджет на 7 дней</h2>
+  <p class="section-note">На человека, без учёта перелёта до Японии.</p>
+  <div class="ledger">
+    <table>
+      <thead><tr><th>Статья расходов</th><th class="num">Эконом</th><th class="num">Средний</th></tr></thead>
+      <tbody>
+        <tr><td>Жильё (7 ночей)</td><td class="num">$500</td><td class="num">$1000</td></tr>
+        <tr><td>Транспорт (JR Pass + метро)</td><td class="num">$280</td><td class="num">$280</td></tr>
+        <tr><td>Еда (3 раза в день)</td><td class="num">$210</td><td class="num">$350</td></tr>
+        <tr><td>Входные билеты / активности</td><td class="num">$100</td><td class="num">$150</td></tr>
+      </tbody>
+      <tfoot><tr><td>Итого</td><td class="num">$1090</td><td class="num">$1780</td></tr></tfoot>
+    </table>
+    <p class="fine">JR Pass выгоднее покупать заранее, до вылета в Японию.</p>
+  </div>
+</div>
+
+<div class="stays">
+  <div class="stay-card">
+    <div class="place">Токио · 3 ночи</div>
+    <h4>Синдзюку / Сибуя</h4>
+    <div class="stay-tier"><span>Бюджетно</span><b>$60–90</b></div>
+    <div class="stay-tier"><span>Средний</span><b>$100–150</b></div>
+  </div>
+  <div class="stay-card">
+    <div class="place">Хаконэ · 1 ночь</div>
+    <h4>Рёкан с онсэном</h4>
+    <div class="stay-tier"><span>Бюджетно</span><b>от $45</b></div>
+    <div class="stay-tier"><span>Средний</span><b>$140–180</b></div>
+    <div class="stay-tier"><span>Люкс</span><b>$330+</b></div>
+  </div>
+  <div class="stay-card">
+    <div class="place">Киото · 2 ночи</div>
+    <h4>Гион / у станции</h4>
+    <div class="stay-tier"><span>Бюджетно</span><b>$40–60</b></div>
+    <div class="stay-tier"><span>Средний</span><b>$100–180</b></div>
+  </div>
+</div>
+
+<footer>
+  <div class="stamp">— конец маршрута —</div>
+  <p>Страница создана локально: без внешних карт, шрифтов или подписок. Можно сохранить и открыть офлайн.</p>
+</footer>
+
+<script>
+var ICONS = {
+  temple: '<path d="M12 2l9 6H3l9-6z"/><path d="M4 10h16v2H4z"/><path d="M6 12v8M12 12v8M18 12v8"/><path d="M4 20h16"/>',
+  neon: '<rect x="4" y="8" width="16" height="12" rx="1"/><path d="M8 8V4h8v4"/><path d="M8 13h3M13 13h3M8 16h3M13 16h3"/>',
+  shrine: '<path d="M3 8h18M5 8v-2M19 8v-2M7 8v12M17 8v12M3 12h18"/>',
+  crossing: '<circle cx="12" cy="12" r="9"/><path d="M8 8l8 8M16 8l-8 8"/>',
+  forest: '<path d="M12 3l4 6h-3l4 6h-3l3 5H7l3-5H7l4-6H8z"/>',
+  street: '<path d="M4 20l6-16h4l6 16"/><path d="M9 14h6"/>',
+  bay: '<path d="M3 15c2-2 4-2 6 0s4 2 6 0 4-2 6 0"/><path d="M3 19c2-2 4-2 6 0s4 2 6 0 4-2 6 0"/><circle cx="17" cy="7" r="3"/>',
+  train: '<rect x="6" y="4" width="12" height="14" rx="2"/><circle cx="9" cy="15" r="1"/><circle cx="15" cy="15" r="1"/><path d="M6 10h12M8 20l-2 2M16 20l2 2"/>',
+  lake: '<path d="M2 16c2.5-3 5-3 7 0s5 3 7 0 5-3 7 0"/><path d="M12 3v9"/><path d="M8 8l4-5 4 5"/>',
+  cable: '<circle cx="6" cy="7" r="2"/><circle cx="18" cy="15" r="2"/><path d="M6 9v3M18 17v3M6 12l12 3"/><rect x="9" y="10" width="6" height="4" rx="1"/>',
+  station: '<rect x="4" y="6" width="16" height="12" rx="2"/><path d="M4 14h16M9 6v12M15 6v12"/>',
+  gion: '<path d="M4 20V10l8-6 8 6v10"/><path d="M9 20v-6h6v6"/>',
+  torii: '<path d="M3 7h18M4 7v13M20 7v13M6 4h12M2 4l2 3M22 4l-2 3"/>',
+  gold: '<path d="M4 20V9l8-6 8 6v11"/><path d="M4 20h16"/><path d="M9 20v-5h6v5"/>',
+  bamboo: '<path d="M8 3v18M16 3v18M8 7h8M8 12h8M8 17h8"/>',
+  market: '<path d="M3 9l1-4h16l1 4"/><path d="M4 9v10h16V9"/><path d="M9 19v-6h6v6"/>',
+  plane: '<path d="M2 16l20-6-6 6 2 5-4-3-4 3 1-5z"/>'
+};
+
+var DAYS = [
+  {
+    tab:"Day 1", label:"DAY 1", title:"Токио: первый вечер",
+    desc:"Из Токио через горы Хаконэ в древний Киото — путь через город, вулканическое озеро и тории Фусими Инари.",
+    template:"a",
+    stops:[
+      {name:"Синдзюку", type:"Locality", blurb:"Прогулка, обед, шоппинг", icon:"street"},
+      {name:"Кабукитё", type:"Sublocality", blurb:"Неоновые улочки, ужин якитори", icon:"neon"}
+    ]
+  },
+  {
+    tab:"Day 2", label:"DAY 2", title:"Храмы и электроника",
+    desc:"Старейший храм Токио, район аниме и электроники, и знаменитый пешеходный перекрёсток вечером.",
+    template:"b",
+    stops:[
+      {name:"Сэнсо-дзи, Асакуса", type:"Buddhist Temple", blurb:"Старейший храм Токио", icon:"temple"},
+      {name:"Акихабара", type:"Colloquial Area", blurb:"Район аниме и электроники", icon:"neon"},
+      {name:"Сибуя (перекрёсток)", type:"Tourist Attraction", blurb:"Знаменитый пешеходный перекрёсток", icon:"crossing"}
+    ]
+  },
+  {
+    tab:"Day 3", label:"DAY 3", title:"Лес, мода, залив",
+    desc:"Тихий храм в лесу, молодёжная мода Харадзюку и футуристичный остров Одайба на закате.",
+    template:"b",
+    stops:[
+      {name:"Мэйдзи Дзингу", type:"Shinto Shrine", blurb:"Тихий храм в лесу", icon:"forest"},
+      {name:"Харадзюку / Такэсита-дори", type:"Route", blurb:"Молодёжная мода и стрит-стайл", icon:"street"},
+      {name:"Одайба", type:"Colloquial Area", blurb:"Футуристичный остров, вид на залив", icon:"bay"}
+    ]
+  },
+  {
+    tab:"Day 4", label:"DAY 4", title:"Хаконэ: гора и онсэн",
+    desc:"Переезд из Токио к подножию Фудзи, круиз по озеру Аси и ночь в традиционном рёкане с горячими источниками.",
+    template:"a",
+    stops:[
+      {name:"Хаконэ-Юмото", type:"Train Station", blurb:"Переезд из Токио, ~1,5 часа", icon:"train"},
+      {name:"Озеро Аси", type:"Lake", blurb:"Круиз с видом на Фудзи", icon:"lake"}
+    ]
+  },
+  {
+    tab:"Day 5", label:"DAY 5", title:"Канатка и путь в Киото",
+    desc:"Канатная дорога над кратером Овакудани, синкансэн до Киото и вечер в историческом квартале Гион.",
+    template:"b",
+    stops:[
+      {name:"Хаконэ Ропвей", type:"Route", blurb:"Вид на кратер Овакудани", icon:"cable"},
+      {name:"Киото (станция)", type:"Train Station", blurb:"Синкансэн, ~2,5 часа", icon:"station"},
+      {name:"Гион", type:"Colloquial Area", blurb:"Исторический квартал гейш", icon:"gion"}
+    ]
+  },
+  {
+    tab:"Day 6", label:"DAY 6", title:"Тории и золотой храм",
+    desc:"Тысячи оранжевых тории, знаменитый золотой павильон и закат в бамбуковой роще Арасиямы.",
+    template:"b",
+    stops:[
+      {name:"Фусими Инари", type:"Shinto Shrine", blurb:"Тысячи оранжевых тории", icon:"torii"},
+      {name:"Кинкаку-дзи", type:"Buddhist Temple", blurb:"Золотой павильон", icon:"gold"},
+      {name:"Арасияма", type:"Scenic Spot", blurb:"Бамбуковая роща, закат", icon:"bamboo"}
+    ]
+  },
+  {
+    tab:"Day 7", label:"DAY 7", title:"Рынок и дорога домой",
+    desc:"Кулинарные ряды Нисики Маркет, свободное время на последние покупки и вылет из аэропорта Кансай.",
+    template:"a",
+    stops:[
+      {name:"Нисики Маркет", type:"Market", blurb:"Кулинарные ряды, сувениры", icon:"market"},
+      {name:"Аэропорт Кансай", type:"Airport", blurb:"Вылет домой", icon:"plane"}
+    ]
+  }
+];
+
+var TEMPLATES = {
+  a: [ {x:200,y:300}, {x:200,y:140} ],
+  b: [ {x:140,y:330}, {x:255,y:225}, {x:200,y:105} ]
+};
+
+var tabsEl = document.getElementById('tabs');
+var pinLayer = document.getElementById('pinLayer');
+var pinOverlay = document.getElementById('pinOverlay');
+var active = 0;
+var openIndex = -1;
+
+function iconSvg(key){
+  return '<svg viewBox="0 0 24 24">' + (ICONS[key] || ICONS.street) + '</svg>';
+}
+
+function closePopup(){
+  openIndex = -1;
+  var existing = pinOverlay.querySelector('.map-popup');
+  if(existing) existing.remove();
+  Array.prototype.forEach.call(document.querySelectorAll('.stop-card'), function(el){
+    el.classList.remove('is-open');
+  });
+}
+
+function openPopup(i){
+  var d = DAYS[active];
+  var pts = TEMPLATES[d.template];
+  var p = pts[i];
+  var s = d.stops[i];
+
+  var existing = pinOverlay.querySelector('.map-popup');
+  if(existing) existing.remove();
+
+  if(openIndex === i){
+    openIndex = -1;
+    Array.prototype.forEach.call(document.querySelectorAll('.stop-card'), function(el){
+      el.classList.remove('is-open');
+    });
+    return;
+  }
+  openIndex = i;
+
+  var popup = document.createElement('div');
+  popup.className = 'map-popup';
+  popup.style.left = (p.x / 460 * 100) + '%';
+  popup.style.top = (p.y / 460 * 100) + '%';
+  popup.innerHTML =
+    '<button class="p-close" aria-label="Закрыть">&times;</button>' +
+    '<div class="p-name">' + (i+1) + '. ' + s.name + '</div>' +
+    '<div class="p-type">' + s.type + '</div>' +
+    '<div class="p-blurb">' + s.blurb + '</div>';
+  popup.querySelector('.p-close').addEventListener('click', function(ev){
+    ev.stopPropagation();
+    closePopup();
+  });
+  pinOverlay.appendChild(popup);
+
+  var cards = document.querySelectorAll('.stop-card');
+  if(cards[i]) cards[i].classList.add('is-open');
+}
+
+function render(idx){
+  active = idx;
+  openIndex = -1;
+  var d = DAYS[idx];
+  document.getElementById('dayLabel').textContent = d.label;
+  document.getElementById('dayTitle').textContent = d.title;
+  document.getElementById('dayDesc').textContent = d.desc;
+
+  var q = d.stops.map(function(s){ return encodeURIComponent(s.name + ', Japan'); }).join('/');
+  document.getElementById('routeBtn').href = 'https://www.google.com/maps/dir/' + q;
+
+  var listHtml = '';
+  d.stops.forEach(function(s, i){
+    listHtml += '<div class="stop-card" data-idx="' + i + '">' +
+      '<div class="stop-icon">' + iconSvg(s.icon) + '<span class="badge">' + (i+1) + '</span></div>' +
+      '<div class="stop-text"><div class="name">' + s.name + '</div><div class="type">' + s.type + '</div><div class="blurb">' + s.blurb + '</div></div>' +
+    '</div>';
+  });
+  document.getElementById('stopsList').innerHTML = listHtml;
+
+  Array.prototype.forEach.call(document.querySelectorAll('.stop-card'), function(el){
+    el.addEventListener('click', function(){
+      openPopup(parseInt(el.getAttribute('data-idx'), 10));
+    });
+  });
+
+  var pts = TEMPLATES[d.template];
+  var pathD = 'M ' + pts.map(function(p){ return p.x + ',' + p.y; }).join(' L ');
+  var svgHtml = '<path d="' + pathD + '" stroke="var(--shu)" stroke-width="3" fill="none" stroke-linecap="round"/>';
+  pts.forEach(function(p, i){
+    svgHtml += '<circle cx="' + p.x + '" cy="' + p.y + '" r="9" fill="#fff" stroke="var(--shu-dark)" stroke-width="2"/>' +
+      '<circle cx="' + p.x + '" cy="' + p.y + '" r="4" fill="var(--shu)"/>' +
+      '<text x="' + p.x + '" y="' + (p.y + 4) + '" text-anchor="middle" font-family="var(--sans)" font-size="10" font-weight="700" fill="#fff" style="pointer-events:none">' + (i+1) + '</text>';
+  });
+  pinLayer.innerHTML = svgHtml;
+
+  var overlayHtml = '';
+  pts.forEach(function(p, i){
+    overlayHtml += '<button class="map-pin" style="left:' + (p.x/460*100) + '%; top:' + (p.y/460*100) + '%;" data-idx="' + i + '" aria-label="' + d.stops[i].name + '"></button>';
+  });
+  pinOverlay.innerHTML = overlayHtml;
+  Array.prototype.forEach.call(pinOverlay.querySelectorAll('.map-pin'), function(btn){
+    btn.addEventListener('click', function(ev){
+      ev.stopPropagation();
+      openPopup(parseInt(btn.getAttribute('data-idx'), 10));
+    });
+  });
+
+  Array.prototype.forEach.call(tabsEl.children, function(btn, i){
+    btn.classList.toggle('active', i === idx);
+  });
+
+  openPopup(0);
+}
+
+DAYS.forEach(function(d, i){
+  var btn = document.createElement('button');
+  btn.className = 'itin-tab';
+  btn.textContent = d.tab;
+  btn.addEventListener('click', function(){ render(i); });
+  tabsEl.appendChild(btn);
+});
+
+document.addEventListener('click', function(ev){
+  if(!ev.target.closest('.map-pin') && !ev.target.closest('.map-popup') && !ev.target.closest('.stop-card')){
+    closePopup();
+  }
+});
+
+render(0);
+</script>
+
+</body>
+</html>
